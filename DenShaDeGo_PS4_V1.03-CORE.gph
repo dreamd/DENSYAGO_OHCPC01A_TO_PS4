@@ -9,9 +9,9 @@
 #define PS4_OPTIONS     BUTTON_3
 
 fix32 lastL2;
-fix32 lastBreakPointLY;
-fix32 lastAccPointLX;
-fix32 lastBreakPointRX;
+fix32 lastBreakLY;
+fix32 lastAccLX;
+fix32 lastBreakRX;
 bool lastOnOff;
 uint32 pressingDownTime;
 bool isPressingDown;

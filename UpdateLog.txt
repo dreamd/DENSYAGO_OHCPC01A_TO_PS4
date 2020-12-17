@@ -1,0 +1,6 @@
+[Update Log]
+
+V1.01 2020/12/12
+
+V1.02 2020/12/15
+Fix 103 sSerials  accelerate problem
