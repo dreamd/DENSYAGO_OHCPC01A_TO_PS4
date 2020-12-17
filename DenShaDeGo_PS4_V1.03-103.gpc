@@ -37,7 +37,7 @@ combo handleStick {
         lastL2 = 0.0;
         lastBreakLY = -90.0;
         lastAccLX = 0.0;
-        lastBreakRX = 90.0;
+        lastBreakRX = 100.0;
     } else if (!btn8 && btn5 && !btn2 && !btn3) {
         //B6 0100
         set_val(BUTTON_5, 0.0);
@@ -146,7 +146,7 @@ combo handleStick {
         
         lastL2 = 0.0;
         lastBreakLY = 80.0;
-        lastAccLX = -80.0;
+        lastAccLX = -100.0;
         lastBreakRX = 0.0;
     } else if (btn8 && btn5 && btn2 && btn3) {
         //P5 1111
