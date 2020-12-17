@@ -1,0 +1,10 @@
+#pragma METAINFO("DenShaDeGo PS4", 1, 3, "<for SANYING OHC-PC01x by EternityLam>")
+#include "DenShaDeGo_PS4_V1.03-CORE.gph"
+
+main {
+    combo_run(handleBlack);
+    combo_run(handleUpDown);
+    combo_run(handleYellow);
+    combo_run(handleWhite);
+    combo_run(handle103Stick);
+}

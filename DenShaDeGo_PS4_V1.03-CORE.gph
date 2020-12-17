@@ -1,0 +1,437 @@
+#define PS4_RX          STICK_1_X
+#define PS4_LY          STICK_2_Y
+#define PS4_LX          STICK_2_X
+#define PS4_L2          BUTTON_8
+#define PS4_TRIANGLE    BUTTON_14
+#define PS4_CIRCLE      BUTTON_15
+#define PS4_CROSS       BUTTON_16
+#define PS4_SQUARE      BUTTON_17
+#define PS4_OPTIONS     BUTTON_3
+
+fix32 lastL2;
+fix32 lastBreakPointLY;
+fix32 lastAccPointLX;
+fix32 lastBreakPointRX;
+bool lastOnOff;
+uint32 pressingDownTime;
+bool isPressingDown;
+uint32 needPressDownAfterCount;
+uint32 pressingUpTime;
+bool isPressingUp;
+uint32 needPressUpAfterCount;
+fix32 lastUpDownPosition;
+
+
+combo pressUp {
+    if (isPressingUp) {
+        needPressUpAfterCount++;
+    } else {
+        isPressingUp = TRUE;
+        set_val(PS4_OPTIONS, 100);
+    }
+}
+combo pressDown {
+    if (isPressingDown) {
+        needPressDownAfterCount++;
+    } else {
+        isPressingDown = TRUE;
+        set_val(PS4_SQUARE, 100);
+    }
+}
+combo handleUpDown {
+if (isPressingUp) {
+        pressingUpTime++;
+        if (pressingUpTime < 100) {
+            set_val(PS4_OPTIONS, 100);
+        } else if (pressingUpTime >= 200) {
+            isPressingUp = FALSE;
+            pressingUpTime = 0;
+        }
+    } else if (isPressingDown) {
+        pressingDownTime++;
+        if (pressingDownTime < 100) {
+            set_val(PS4_SQUARE, 100);
+        } else if (pressingDownTime >= 200) {
+            isPressingDown = FALSE;
+            pressingDownTime = 0;
+        }
+    }
+    if (needPressUpAfterCount > 0) {
+        needPressUpAfterCount--;
+        combo_run(pressUp);
+    } else if (needPressDownAfterCount > 0) {
+        needPressDownAfterCount--;
+        combo_run(pressDown);
+    }
+    if ((!lastOnOff && is_active(PS4_LY)) || (lastOnOff && is_release(PS4_LY))) {
+        lastOnOff = !lastOnOff;
+        if (get_val(PS4_LY) == 100.0) {
+            combo_run(pressDown);
+        } else if (get_val(PS4_LY) == -100.0) {
+            combo_run(pressUp);
+        } else {
+            if (lastUpDownPosition != -100.0) {
+                combo_run(pressDown);
+            }
+        }
+    }
+    lastUpDownPosition = get_val(PS4_LY);
+}
+combo handleBlack {
+    if (is_active(BUTTON_17)) {
+        set_val(PS4_CIRCLE, 100);
+		if (!isPressingDown) {
+			set_val(BUTTON_17, 0);
+		}
+    } else if (is_release(BUTTON_17)) {
+        set_val(PS4_CIRCLE, 0);
+    }   
+}
+combo handleYellow {
+    if (is_active(BUTTON_15)) {
+        set_val(PS4_TRIANGLE, 100);
+    } else if (is_release(BUTTON_15)) {
+        set_val(PS4_TRIANGLE, 0);
+    }   
+}
+combo handleWhite {
+    if (is_active(BUTTON_16)) {
+        set_val(PS4_CROSS, 100);
+    } else if (is_release(BUTTON_16)) {
+        set_val(PS4_CROSS, 0);
+    }   
+}
+combo handle205E231Stick {
+	/*****************************
+	  Process Notch Convert
+	******************************/
+    bool btn2 = is_active(BUTTON_2);
+    bool btn3 = is_active(BUTTON_3);
+    bool btn5 = is_active(BUTTON_5);
+    bool btn8 = is_active(BUTTON_8);
+    if (!btn8 && !btn5 && !btn2 && btn3) {
+		// EB 0001
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+
+		lastL2 = 100.0;
+        lastBreakPointLY = -100.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 100.0;
+    } else if (!btn8 && !btn5 && btn2 && !btn3) {
+		// B8 0010
+        set_val(BUTTON_2, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -100.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 100.0;
+    } else if (!btn8 && !btn5 && btn2 && btn3) {
+		//B7 0011
+        set_val(BUTTON_2, 0.0);
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -90.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 90.0;
+    } else if (!btn8 && btn5 && !btn2 && !btn3) {
+		//B6 0100
+        set_val(BUTTON_5, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -80.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 80.0;
+		
+    } else if (!btn8 && btn5 &&  !btn2 && btn3) {
+		//B5 0101
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+        set_val(BUTTON_5, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -70.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 70.0;
+		
+    } else if (!btn8 && btn5  && btn2 && !btn3 ) {
+		//B4 0110
+        set_val(BUTTON_2, 0.0);
+        set_val(BUTTON_5, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -60.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 60.0;
+    } else if (!btn8 && btn5 && btn2 && btn3) {
+		//B3 0111
+        set_val(BUTTON_2, 0.0);
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+        set_val(BUTTON_5, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -50.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 50.0;
+    } else if (btn8 &&  !btn5 && !btn2 && !btn3) {
+		//B2 1000
+
+        set_val(PS4_L2, 0.0);
+		
+        lastBreakPointLY = -40.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 40.0;
+    } else if (btn8 && !btn5 && !btn2 && btn3) {
+		//B1 1001
+
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -30.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 30.0;
+    } else if (btn8 && !btn5 && btn2 && !btn3) {
+		//N 1010
+
+        set_val(BUTTON_2, 0.0);
+
+		lastL2 = 0.0;		
+        lastBreakPointLY = 0.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 0.0;
+    } else if (btn8 && !btn5 && btn2 && btn3) {
+		//P1 1011
+        set_val(BUTTON_2, 0.0);
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = 30.0;
+		lastAccPointLX = -30.0;
+        lastBreakPointRX = 0.0;
+    } else if (btn8 &&  btn5 && !btn2 && !btn3) {
+		//P2 1100
+        set_val(BUTTON_5, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = 50.0;
+		lastAccPointLX = -50.0;
+        lastBreakPointRX = 0.0;
+    } else if (btn8 && btn5 &&!btn2 && btn3) {
+		//P3 1101
+
+        set_val(PS4_L2, 0.0);
+        set_val(BUTTON_5, 0.0);
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+        lastBreakPointLY = 70.0;
+		lastAccPointLX = -70.0;
+        lastBreakPointRX = 0.0;
+    } else if (btn8 &&  btn5 && btn2 && !btn3) {
+		//P4 1110
+
+        set_val(BUTTON_5, 0.0);
+        set_val(BUTTON_2, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = 80.0;
+		lastAccPointLX = -80.0;
+        lastBreakPointRX = 0.0;
+    } else if (btn8 && btn5 && btn2 && btn3) {
+		//P5 1111
+
+        set_val(BUTTON_2, 0.0);
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+        set_val(BUTTON_5, 0.0);
+
+		lastL2 = 0.0;		
+        lastBreakPointLY = 100.0;
+		lastAccPointLX = -100.0;
+        lastBreakPointRX = 0.0;
+    }
+	
+	set_val(PS4_L2, lastL2);
+	set_val(PS4_LY, lastBreakPointLY);
+    set_val(PS4_LX, lastAccPointLX);
+    set_val(PS4_RX, lastBreakPointRX);
+}
+combo handle103Stick {
+	/*****************************
+	  Process Notch Convert
+	******************************/
+    bool btn2 = is_active(BUTTON_2);
+    bool btn3 = is_active(BUTTON_3);
+    bool btn5 = is_active(BUTTON_5);
+    bool btn8 = is_active(BUTTON_8);
+    if (!btn8 && !btn5 && !btn2 && btn3) {
+		// EB 0001
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+
+		lastL2 = 100.0;
+        lastBreakPointLY = -100.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 100.0;
+    } else if (!btn8 && !btn5 && btn2 && !btn3) {
+		// B8 0010
+        set_val(BUTTON_2, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -100.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 100.0;
+    } else if (!btn8 && !btn5 && btn2 && btn3) {
+		//B7 0011
+        set_val(BUTTON_2, 0.0);
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -90.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 90.0;
+    } else if (!btn8 && btn5 && !btn2 && !btn3) {
+		//B6 0100
+        set_val(BUTTON_5, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -80.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 80.0;
+		
+    } else if (!btn8 && btn5 &&  !btn2 && btn3) {
+		//B5 0101
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+        set_val(BUTTON_5, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -70.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 75.0;
+		
+    } else if (!btn8 && btn5  && btn2 && !btn3 ) {
+		//B4 0110
+        set_val(BUTTON_2, 0.0);
+        set_val(BUTTON_5, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -60.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 60.0;
+    } else if (!btn8 && btn5 && btn2 && btn3) {
+		//B3 0111
+        set_val(BUTTON_2, 0.0);
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+        set_val(BUTTON_5, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -50.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 50.0;
+    } else if (btn8 &&  !btn5 && !btn2 && !btn3) {
+		//B2 1000
+
+        set_val(PS4_L2, 0.0);
+		
+        lastBreakPointLY = -40.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 40.0;
+    } else if (btn8 && !btn5 && !btn2 && btn3) {
+		//B1 1001
+
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = -30.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 30.0;
+    } else if (btn8 && !btn5 && btn2 && !btn3) {
+		//N 1010
+
+        set_val(BUTTON_2, 0.0);
+
+		lastL2 = 0.0;		
+        lastBreakPointLY = 0.0;
+		lastAccPointLX = 0.0;
+        lastBreakPointRX = 0.0;
+    } else if (btn8 && !btn5 && btn2 && btn3) {
+		//P1 1011
+        set_val(BUTTON_2, 0.0);
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = 30.0;
+		lastAccPointLX = -30.0;
+        lastBreakPointRX = 0.0;
+    } else if (btn8 &&  btn5 && !btn2 && !btn3) {
+		//P2 1100
+        set_val(BUTTON_5, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = 50.0;
+		lastAccPointLX = -50.0;
+        lastBreakPointRX = 0.0;
+    } else if (btn8 && btn5 &&!btn2 && btn3) {
+		//P3 1101
+
+        set_val(PS4_L2, 0.0);
+        set_val(BUTTON_5, 0.0);
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+        lastBreakPointLY = 70.0;
+		lastAccPointLX = -70.0;
+        lastBreakPointRX = 0.0;
+    } else if (btn8 &&  btn5 && btn2 && !btn3) {
+		//P4 1110
+
+        set_val(BUTTON_5, 0.0);
+        set_val(BUTTON_2, 0.0);
+		
+		lastL2 = 0.0;
+        lastBreakPointLY = 80.0;
+		lastAccPointLX = -80.0;
+        lastBreakPointRX = 0.0;
+    } else if (btn8 && btn5 && btn2 && btn3) {
+		//P5 1111
+
+        set_val(BUTTON_2, 0.0);
+        if (!isPressingUp) {
+            set_val(BUTTON_3, 0.0);
+        }
+        set_val(BUTTON_5, 0.0);
+
+		lastL2 = 0.0;		
+        lastBreakPointLY = 100.0;
+		lastAccPointLX = -100.0;
+        lastBreakPointRX = 0.0;
+    }
+	
+	set_val(PS4_L2, lastL2);
+	set_val(PS4_LY, lastBreakPointLY);
+    set_val(PS4_LX, lastAccPointLX);
+    set_val(PS4_RX, lastBreakPointRX);
+}
