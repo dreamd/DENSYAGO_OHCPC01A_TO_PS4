@@ -4,3 +4,9 @@ V1.01 2020/12/12
 
 V1.02 2020/12/15
 Fix 103 sSerials  accelerate problem
+
+V1.03 2020/12/17
+Changed structure
+
+V1.04 2021/03/20
+Should be fix L2 problem
