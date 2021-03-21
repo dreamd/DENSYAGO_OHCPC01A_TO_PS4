@@ -1,7 +1,7 @@
-# Convert Script For OHC-PC01A To PS4
-we use TITAN TWO to connect to PS4, then we use ohc-pc01a and  a normal PS4 controller connection to TITAN TWO.
+# Convert Script For OHC-PC01A To PS4/PS5
+we use TITAN TWO to connect to PS4/PS5, then we use ohc-pc01a and a normal PS4/PS5 controller connection to TITAN TWO.
 
-PS4 <=>  TITAN TWO <=> PS4controller & ohc-pc01a
+PS4/PS5 <=>  TITAN TWO <=> PS4/PS5 controller & ohc-pc01a
 
 You can install this script into your TITAN TWO
 
